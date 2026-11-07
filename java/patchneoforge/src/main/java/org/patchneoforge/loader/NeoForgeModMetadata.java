@@ -8,6 +8,7 @@ import java.util.*;
 
 public class NeoForgeModMetadata {
 
+    private String modLoader = "javafml";
     private String modId = "";
     private String version = "1.0.0";
     private String displayName = "";
@@ -22,6 +23,7 @@ public class NeoForgeModMetadata {
             String line;
             NeoForgeModMetadata currentMod = null;
             boolean inModsSection = false;
+            String globalModLoader = "javafml";
 
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
@@ -29,6 +31,7 @@ public class NeoForgeModMetadata {
 
                 if (line.startsWith("[[mods]]")) {
                     currentMod = new NeoForgeModMetadata();
+                    currentMod.modLoader = globalModLoader;
                     mods.add(currentMod);
                     inModsSection = true;
                     continue;
@@ -36,10 +39,15 @@ public class NeoForgeModMetadata {
                     inModsSection = false;
                 }
 
-                if (inModsSection && currentMod != null && line.contains("=")) {
+                if (line.contains("=")) {
                     int eq = line.indexOf('=');
                     String key = line.substring(0, eq).trim();
                     String val = line.substring(eq + 1).trim();
+                    // Strip inline comments
+                    int hashIdx = val.indexOf('#');
+                    if (hashIdx >= 0) {
+                        val = val.substring(0, hashIdx).trim();
+                    }
                     // Strip quotes
                     if (val.startsWith("\"") && val.endsWith("\"") && val.length() >= 2) {
                         val = val.substring(1, val.length() - 1);
@@ -47,12 +55,19 @@ public class NeoForgeModMetadata {
                         val = val.substring(1, val.length() - 1);
                     }
 
-                    switch (key) {
-                        case "modId" -> currentMod.modId = val;
-                        case "version" -> currentMod.version = val;
-                        case "displayName" -> currentMod.displayName = val;
-                        case "description" -> currentMod.description = val;
-                        case "authors" -> currentMod.authors = val;
+                    if ("modLoader".equals(key)) {
+                        globalModLoader = val;
+                        if (currentMod != null) currentMod.modLoader = val;
+                    }
+
+                    if (inModsSection && currentMod != null) {
+                        switch (key) {
+                            case "modId" -> currentMod.modId = val;
+                            case "version" -> currentMod.version = val;
+                            case "displayName" -> currentMod.displayName = val;
+                            case "description" -> currentMod.description = val;
+                            case "authors" -> currentMod.authors = val;
+                        }
                     }
                 }
             }
@@ -62,6 +77,8 @@ public class NeoForgeModMetadata {
 
         return mods;
     }
+
+    public String getModLoader() { return modLoader; }
 
     public String getModId() { return modId; }
     public String getVersion() { return version; }

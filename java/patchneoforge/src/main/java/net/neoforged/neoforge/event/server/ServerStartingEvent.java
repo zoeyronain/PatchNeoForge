@@ -1,7 +1,9 @@
 package net.neoforged.neoforge.event.server;
 
-import net.neoforged.bus.api.Event;
+import net.minecraft.server.MinecraftServer;
 
-public class ServerStartingEvent extends Event {
-    public ServerStartingEvent() {}
+public class ServerStartingEvent extends ServerLifecycleEvent {
+    public ServerStartingEvent(MinecraftServer server) {
+        super(server);
+    }
 }

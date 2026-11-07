@@ -1,9 +1,10 @@
 package net.neoforged.fml.event.lifecycle;
 
 import net.neoforged.bus.api.Event;
-import net.neoforged.fml.common.ModContainer;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.event.IModBusEvent;
 
-public class FMLConstructModEvent extends Event {
+public class FMLConstructModEvent extends Event implements IModBusEvent {
     private final ModContainer container;
 
     public FMLConstructModEvent(ModContainer container) {

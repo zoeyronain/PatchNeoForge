@@ -153,6 +153,9 @@ public class NeoForgeEventBus implements IEventBus {
                     if (event.isCanceled() && !listener.receiveCanceled()) {
                         continue;
                     }
+                    if (!listener.eventType().isInstance(event)) {
+                        continue;
+                    }
                     try {
                         listener.handler().accept(event);
                     } catch (Throwable t) {
@@ -174,6 +177,13 @@ public class NeoForgeEventBus implements IEventBus {
     }
 
     private Class<?> resolveConsumerEventType(Consumer<?> consumer) {
+        try {
+            Class<?> resolved = net.jodah.typetools.TypeResolver.resolveRawArgument(Consumer.class, consumer.getClass());
+            if (resolved != null && resolved != net.jodah.typetools.TypeResolver.Unknown.class && Event.class.isAssignableFrom(resolved)) {
+                return resolved;
+            }
+        } catch (Throwable ignored) {}
+
         for (Method method : consumer.getClass().getDeclaredMethods()) {
             if ("accept".equals(method.getName()) && !method.isBridge()) {
                 Class<?>[] params = method.getParameterTypes();

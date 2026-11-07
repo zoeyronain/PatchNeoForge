@@ -58,9 +58,13 @@ repositories {
 dependencies {
     api("com.mojang:brigadier:1.2.9")
     api("org.slf4j:slf4j-api:2.0.12")
+    compileOnly("net.jodah:typetools:0.6.3")
+    compileOnly(fileTree("${rootProject.projectDir}/../server/patchneoforge/cache/neoforge/libraries") {
+        include("**/*.jar")
+    })
     implementation("com.google.protobuf:protobuf-java:$protobufVersion")
-    implementation("org.apache.logging.log4j:log4j-api:2.23.1")
-    implementation("org.apache.logging.log4j:log4j-core:2.23.1")
+    compileOnly("org.apache.logging.log4j:log4j-api:2.23.1")
+    compileOnly("org.apache.logging.log4j:log4j-core:2.23.1")
     implementation("net.bytebuddy:byte-buddy:1.18.15")
     implementation("net.bytebuddy:byte-buddy-agent:1.18.15")
 
@@ -74,14 +78,31 @@ tasks.withType<JavaCompile> {
 
 tasks.named<Jar>("jar") {
     archiveBaseName.set("patchneoforge")
+    isZip64 = true
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes(
             "Premain-Class" to "org.patchneoforge.bootstrap.HeadlessNeoForgeServer",
             "Agent-Class" to "org.patchneoforge.bootstrap.HeadlessNeoForgeServer",
             "Can-Redefine-Classes" to "true",
-            "Can-Retransform-Classes" to "true"
+            "Can-Retransform-Classes" to "true",
+            "Can-Set-Native-Method-Prefix" to "true"
         )
     }
+
+    dependsOn(configurations.runtimeClasspath)
+
+    from({
+        configurations.runtimeClasspath.get().map { file ->
+            if (file.isDirectory) file else zipTree(file)
+        }
+    })
+
+    exclude(
+        "META-INF/*.SF",
+        "META-INF/*.DSA",
+        "META-INF/*.RSA"
+    )
 }
 
 tasks.named<Test>("test") {

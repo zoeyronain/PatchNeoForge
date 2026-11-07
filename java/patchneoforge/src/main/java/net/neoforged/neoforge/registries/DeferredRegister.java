@@ -24,12 +24,39 @@ public class DeferredRegister<T> {
         return new DeferredRegister<>(registryKey, modId);
     }
 
+    public static <B> DeferredRegister<B> create(net.minecraft.resources.ResourceKey<?> registryKey, String modId) {
+        String key = (registryKey != null && registryKey.location() != null)
+                ? registryKey.location().toString()
+                : "minecraft:custom";
+        return new DeferredRegister<>(key, modId);
+    }
+
+    public static <B> DeferredRegister<B> create(net.minecraft.resources.ResourceLocation registryLocation, String modId) {
+        String key = registryLocation != null ? registryLocation.toString() : "minecraft:custom";
+        return new DeferredRegister<>(key, modId);
+    }
+
+    public static <B> DeferredRegister<B> create(net.minecraft.core.Registry<?> registry, String modId) {
+        String key = (registry != null && registry.key() != null && registry.key().location() != null)
+                ? registry.key().location().toString()
+                : "minecraft:custom";
+        return new DeferredRegister<>(key, modId);
+    }
+
     public static Blocks createBlocks(String modId) {
         return new Blocks(modId);
     }
 
     public static Items createItems(String modId) {
         return new Items(modId);
+    }
+
+    public static DataComponents createDataComponents(String modId) {
+        return new DataComponents(modId);
+    }
+
+    public static DataComponents createDataComponents(Object registryKey, String modId) {
+        return new DataComponents(modId);
     }
 
     public <I extends T> DeferredHolder<T, I> register(String name, Supplier<I> supplier) {
@@ -39,17 +66,29 @@ public class DeferredRegister<T> {
         return holder;
     }
 
+    public <I extends T> DeferredHolder<T, I> register(String name, java.util.function.Function<net.minecraft.resources.ResourceLocation, ? extends I> function) {
+        String fullId = modId + ":" + name;
+        net.minecraft.resources.ResourceLocation loc = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(modId, name);
+        DeferredHolder<T, I> holder = new DeferredHolder<>(fullId, () -> function.apply(loc));
+        entries.put(name, holder);
+        return holder;
+    }
+
     public void register(IEventBus bus) {
         bus.addListener(RegisterEvent.class, this::onRegister);
     }
 
     private void onRegister(RegisterEvent event) {
-        if (event.getRegistryKey().equals(registryKey)) {
+        if (event.getRegistryKey() != null && (event.getRegistryKey().location().toString().equals(registryKey) || event.getRegistryKey().toString().equals(registryKey))) {
             LOGGER.info("[DeferredRegister] Firing registrations for {} entries in {} ({})",
                     entries.size(), registryKey, modId);
             for (Map.Entry<String, DeferredHolder<T, ? extends T>> entry : entries.entrySet()) {
                 try {
-                    entry.getValue().get();
+                    T val = entry.getValue().get();
+                    if (event.getRegistry() != null && val != null) {
+                        net.minecraft.resources.ResourceLocation loc = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(modId, entry.getKey());
+                        net.minecraft.core.Registry.register((net.minecraft.core.Registry<Object>) event.getRegistry(), loc, val);
+                    }
                 } catch (Throwable t) {
                     LOGGER.warn("[DeferredRegister] Deferred entry '{}' threw on initial resolution: {}",
                             entry.getKey(), t.getMessage());
@@ -94,6 +133,12 @@ public class DeferredRegister<T> {
             DeferredItem<I> holder = new DeferredItem<>(fullId, itemSupplier);
             itemEntries.put(name, holder);
             return holder;
+        }
+    }
+
+    public static class DataComponents extends DeferredRegister<Object> {
+        public DataComponents(String modId) {
+            super("minecraft:data_component_type", modId);
         }
     }
 }

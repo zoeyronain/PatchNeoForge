@@ -1,7 +1,9 @@
 package net.neoforged.neoforge.event.server;
 
-import net.neoforged.bus.api.Event;
+import net.minecraft.server.MinecraftServer;
 
-public class ServerStoppingEvent extends Event {
-    public ServerStoppingEvent() {}
+public class ServerStoppingEvent extends ServerLifecycleEvent {
+    public ServerStoppingEvent(MinecraftServer server) {
+        super(server);
+    }
 }

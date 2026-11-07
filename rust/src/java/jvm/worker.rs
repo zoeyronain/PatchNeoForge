@@ -330,7 +330,12 @@ impl JvmWorker {
             .option("--enable-native-access=ALL-UNNAMED")
             .option("--add-opens=java.base/java.lang=ALL-UNNAMED")
             .option("--add-opens=java.base/java.lang.reflect=ALL-UNNAMED")
+            .option("--add-opens=java.base/java.lang.invoke=ALL-UNNAMED")
+            .option("--add-opens=java.base/java.util.jar=ALL-UNNAMED")
+            .option("--add-opens=java.base/jdk.internal.reflect=ALL-UNNAMED")
             .option("--add-opens=java.base/jdk.internal.vm=ALL-UNNAMED")
+            .option("--add-opens=java.base/sun.misc=ALL-UNNAMED")
+            .option("--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED")
             .option("--add-opens=java.management/sun.management=ALL-UNNAMED");
 
         if let Some(ref agent_jar) = patchneoforge_jar {

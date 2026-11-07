@@ -83,6 +83,7 @@ world_the_end/
 !rust/tests/plugins/**
 
 # Vanilla / Server runtime generated files
+server/*
 server.properties
 bukkit.yml
 spigot.yml

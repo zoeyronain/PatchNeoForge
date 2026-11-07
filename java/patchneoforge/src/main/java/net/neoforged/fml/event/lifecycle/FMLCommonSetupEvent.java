@@ -1,13 +1,14 @@
 package net.neoforged.fml.event.lifecycle;
 
 import net.neoforged.bus.api.Event;
-import net.neoforged.fml.common.ModContainer;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.event.IModBusEvent;
 
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class FMLCommonSetupEvent extends Event {
+public class FMLCommonSetupEvent extends Event implements IModBusEvent {
 
     private final ModContainer container;
     private final Queue<Runnable> workQueue = new ConcurrentLinkedQueue<>();
