@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package patchneoforge.message;
+
+import "patchneoforge/common/types.proto";
+
+option java_multiple_files = true;
+option java_package = "patchneoforge.message";
+
+message SendMessageRequest {
+  patchneoforge.common.UUID uuid = 1;
+  string message = 2;
+}

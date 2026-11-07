@@ -1,0 +1,17 @@
+modLoader="javafml"
+loaderVersion="[1,)"
+license="MIT"
+
+[[mods]]
+modId="testmod"
+version="1.0.0"
+displayName="Test NeoForge Mod"
+description="An example NeoForge mod for PatchNeoForge on PumpkinMC"
+authors="PumpkinMC Contributors"
+
+[[dependencies.testmod]]
+modId="neoforge"
+mandatory=true
+versionRange="[21.1.0,)"
+ordering="NONE"
+side="BOTH"

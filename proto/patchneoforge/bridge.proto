@@ -1,0 +1,159 @@
+syntax = "proto3";
+package patchneoforge.bridge;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+import "patchneoforge/abilities.proto";
+import "patchneoforge/command.proto";
+import "patchneoforge/common/types.proto";
+import "patchneoforge/config.proto";
+import "patchneoforge/entity.proto";
+import "patchneoforge/events/event.proto";
+import "patchneoforge/itemstack.proto";
+import "patchneoforge/log.proto";
+import "patchneoforge/message.proto";
+import "patchneoforge/registry.proto";
+import "patchneoforge/server.proto";
+import "patchneoforge/sound.proto";
+import "patchneoforge/world.proto";
+
+service NativeBridge {
+  rpc GetAbilities(patchneoforge.common.UUID) returns (patchneoforge.abilities.Abilities);
+  rpc SetAbilities(patchneoforge.abilities.SetAbilitiesRequest) returns (patchneoforge.abilities.SetAbilitiesResponse);
+
+  rpc GetEntityHealth(patchneoforge.common.UUID) returns (patchneoforge.entity.EntityHealthResponse);
+  rpc GetEntityId(patchneoforge.common.UUID) returns (patchneoforge.entity.GetEntityIdResponse);
+  rpc GetEntityUuid(patchneoforge.entity.GetEntityUuidRequest) returns (patchneoforge.entity.GetEntityUuidResponse);
+  rpc SetEntityHealth(patchneoforge.entity.SetEntityHealthRequest) returns (google.protobuf.Empty);
+  rpc DamageEntity(patchneoforge.entity.DamageEntityRequest) returns (google.protobuf.Empty);
+  rpc GetEntityVelocity(patchneoforge.common.UUID) returns (patchneoforge.entity.EntityVelocityResponse);
+  rpc SetEntityVelocity(patchneoforge.entity.SetEntityVelocityRequest) returns (google.protobuf.Empty);
+  rpc SetEntityPose(patchneoforge.entity.SetEntityPoseRequest) returns (google.protobuf.Empty);
+  rpc TeleportEntity(patchneoforge.entity.TeleportEntityRequest) returns (google.protobuf.Empty);
+  rpc RemoveEntity(patchneoforge.common.UUID) returns (google.protobuf.Empty);
+  rpc GetGamemode(patchneoforge.common.UUID) returns (patchneoforge.entity.GetGamemodeResponse);
+  rpc SetGamemode(patchneoforge.entity.SetGamemodeRequest) returns (google.protobuf.Empty);
+  rpc IsOnGround(patchneoforge.common.UUID) returns (patchneoforge.entity.IsOnGroundResponse);
+  rpc GetPlayerLocale(patchneoforge.common.UUID) returns (patchneoforge.entity.GetPlayerLocaleResponse);
+  rpc IsOp(patchneoforge.common.UUID) returns (patchneoforge.entity.IsOpResponse);
+  rpc SetOp(patchneoforge.entity.SetOpRequest) returns (google.protobuf.Empty);
+
+  rpc GetFoodLevel(patchneoforge.common.UUID) returns (patchneoforge.entity.GetFoodLevelResponse);
+  rpc SetFoodLevel(patchneoforge.entity.SetFoodLevelRequest) returns (google.protobuf.Empty);
+  rpc SetSaturation(patchneoforge.entity.SetSaturationRequest) returns (google.protobuf.Empty);
+  rpc SetExhaustion(patchneoforge.entity.SetExhaustionRequest) returns (google.protobuf.Empty);
+
+  rpc GetExperience(patchneoforge.common.UUID) returns (patchneoforge.entity.GetExperienceResponse);
+  rpc SetExperience(patchneoforge.entity.SetExperienceRequest) returns (google.protobuf.Empty);
+
+  rpc KickPlayer(patchneoforge.entity.KickPlayerRequest) returns (google.protobuf.Empty);
+  rpc SendTitle(patchneoforge.entity.SendTitleRequest) returns (google.protobuf.Empty);
+  rpc SendActionBar(patchneoforge.entity.SendActionBarRequest) returns (google.protobuf.Empty);
+  rpc ResetTitle(patchneoforge.common.UUID) returns (google.protobuf.Empty);
+
+  rpc SetDisplayName(patchneoforge.entity.SetDisplayNameRequest) returns (google.protobuf.Empty);
+  rpc SetPlayerListName(patchneoforge.entity.SetPlayerListNameRequest) returns (google.protobuf.Empty);
+  rpc SetPlayerListHeaderFooter(patchneoforge.entity.SetPlayerListHeaderFooterRequest) returns (google.protobuf.Empty);
+
+  rpc GetPlayerPoseState(patchneoforge.common.UUID) returns (patchneoforge.entity.GetPlayerPoseStateResponse);
+  rpc SetSneaking(patchneoforge.entity.SetSneakingRequest) returns (google.protobuf.Empty);
+  rpc SetSprinting(patchneoforge.entity.SetSprintingRequest) returns (google.protobuf.Empty);
+
+  rpc SetPlayerTime(patchneoforge.entity.SetPlayerTimeRequest) returns (google.protobuf.Empty);
+  rpc ResetPlayerTime(patchneoforge.common.UUID) returns (google.protobuf.Empty);
+  rpc SetPlayerWeather(patchneoforge.entity.SetPlayerWeatherRequest) returns (google.protobuf.Empty);
+  rpc ResetPlayerWeather(patchneoforge.common.UUID) returns (google.protobuf.Empty);
+
+  rpc SetCompassTarget(patchneoforge.entity.SetCompassTargetRequest) returns (google.protobuf.Empty);
+  rpc GetCompassTarget(patchneoforge.common.UUID) returns (patchneoforge.common.Vec3);
+  rpc SetRespawnPoint(patchneoforge.entity.SetRespawnPointRequest) returns (google.protobuf.Empty);
+  rpc GetRespawnPoint(patchneoforge.common.UUID) returns (patchneoforge.common.Location);
+
+  rpc StopSound(patchneoforge.entity.StopSoundRequest) returns (google.protobuf.Empty);
+  rpc SendBlockChange(patchneoforge.entity.SendBlockChangeRequest) returns (google.protobuf.Empty);
+  rpc SendResourcePack(patchneoforge.entity.SendResourcePackRequest) returns (google.protobuf.Empty);
+  rpc GetPlayerConnectionInfo(patchneoforge.common.UUID) returns (patchneoforge.entity.PlayerConnectionInfoResponse);
+  rpc SendGameEvent(patchneoforge.entity.SendGameEventRequest) returns (google.protobuf.Empty);
+  rpc SendRawPacket(patchneoforge.entity.SendRawPacketRequest) returns (google.protobuf.Empty);
+
+  rpc SetCooldown(patchneoforge.entity.SetCooldownRequest) returns (google.protobuf.Empty);
+  rpc GetCooldown(patchneoforge.entity.GetCooldownRequest) returns (patchneoforge.entity.GetCooldownResponse);
+
+  rpc OpenEnderChest(patchneoforge.common.UUID) returns (google.protobuf.Empty);
+  rpc UpdateInventory(patchneoforge.common.UUID) returns (google.protobuf.Empty);
+
+  rpc GetPlayerInventory(patchneoforge.common.UUID) returns (patchneoforge.itemstack.GetPlayerInventoryResponse);
+  rpc SetPlayerInventorySlot(patchneoforge.itemstack.SetPlayerInventorySlotRequest) returns (google.protobuf.Empty);
+  rpc SetPlayerSelectedSlot(patchneoforge.itemstack.SetPlayerSelectedSlotRequest) returns (google.protobuf.Empty);
+  rpc SetPlayerEquipment(patchneoforge.itemstack.SetPlayerEquipmentRequest) returns (google.protobuf.Empty);
+  rpc ClearPlayerInventory(patchneoforge.common.UUID) returns (google.protobuf.Empty);
+
+  rpc GetBlockData(patchneoforge.world.GetBlockDataRequest) returns (patchneoforge.world.GetBlockDataResponse);
+  rpc SetBlockData(patchneoforge.world.SetBlockDataRequest) returns (google.protobuf.Empty);
+  rpc SpawnParticle(patchneoforge.world.SpawnParticleRequest) returns (google.protobuf.Empty);
+  rpc GetWorlds(patchneoforge.common.EmptyRequest) returns (patchneoforge.world.GetWorldsResponse);
+  rpc GetWorldBorder(patchneoforge.world.GetWorldBorderRequest) returns (patchneoforge.world.WorldBorderData);
+  rpc SetWorldBorder(patchneoforge.world.SetWorldBorderRequest) returns (google.protobuf.Empty);
+
+  rpc RegisterEvent(patchneoforge.events.RegisterEventRequest) returns (google.protobuf.Empty);
+  rpc CallEvent(patchneoforge.events.CallEventRequest) returns (patchneoforge.events.CallEventResponse);
+
+  rpc SendMessage(patchneoforge.message.SendMessageRequest) returns (google.protobuf.Empty);
+
+  rpc GetLocation(patchneoforge.common.UUID) returns (patchneoforge.common.Location);
+
+  rpc GetRegistryData(patchneoforge.registry.GetRegistryDataRequest) returns (patchneoforge.registry.GetRegistryDataResponse);
+
+  rpc PlayerEntityPlaySound(patchneoforge.sound.PlayerEntityPlaySoundRequest) returns (google.protobuf.Empty);
+  rpc PlayerPlaySound(patchneoforge.sound.PlayerPlaySoundRequest) returns (google.protobuf.Empty);
+
+  rpc SendLog(patchneoforge.log.SendLogRequest) returns (google.protobuf.Empty);
+
+  rpc GetPatchNeoForgeConfig(patchneoforge.common.EmptyRequest) returns (patchneoforge.config.GetPatchNeoForgeConfigResponse);
+
+  rpc RegisterCommand(patchneoforge.command.RegisterCommandRequest) returns (google.protobuf.Empty);
+
+  rpc GetWorldInfo(patchneoforge.world.GetWorldInfoRequest) returns (patchneoforge.world.GetWorldInfoResponse);
+  rpc SetWorldTime(patchneoforge.world.SetWorldTimeRequest) returns (google.protobuf.Empty);
+  rpc SetWorldWeather(patchneoforge.world.SetWorldWeatherRequest) returns (google.protobuf.Empty);
+  rpc SetWorldSpawn(patchneoforge.world.SetWorldSpawnRequest) returns (google.protobuf.Empty);
+  rpc SetWorldDifficulty(patchneoforge.world.SetWorldDifficultyRequest) returns (google.protobuf.Empty);
+  rpc SetWorldPvp(patchneoforge.world.SetWorldPvpRequest) returns (google.protobuf.Empty);
+  rpc SetWorldGamerule(patchneoforge.world.SetWorldGameruleRequest) returns (google.protobuf.Empty);
+  rpc GetWorldGamerules(patchneoforge.world.GetWorldGamerulesRequest) returns (patchneoforge.world.GetWorldGamerulesResponse);
+  rpc GetWorldEntities(patchneoforge.world.GetWorldEntitiesRequest) returns (patchneoforge.world.GetWorldEntitiesResponse);
+  rpc SpawnWorldEntity(patchneoforge.world.SpawnWorldEntityRequest) returns (patchneoforge.world.SpawnWorldEntityResponse);
+  rpc CreateWorldExplosion(patchneoforge.world.CreateWorldExplosionRequest) returns (google.protobuf.Empty);
+  rpc PlayWorldSound(patchneoforge.world.PlayWorldSoundRequest) returns (google.protobuf.Empty);
+  rpc SetChunkForceLoaded(patchneoforge.world.SetChunkForceLoadedRequest) returns (google.protobuf.Empty);
+  rpc GetForceLoadedChunks(patchneoforge.world.GetForceLoadedChunksRequest) returns (patchneoforge.world.GetForceLoadedChunksResponse);
+  rpc SaveWorld(patchneoforge.world.SaveWorldRequest) returns (google.protobuf.Empty);
+
+  rpc GetServerInfo(patchneoforge.common.EmptyRequest) returns (patchneoforge.server.ServerInfoResponse);
+  rpc SetServerMotd(patchneoforge.server.SetServerMotdRequest) returns (google.protobuf.Empty);
+  rpc SetServerMaxPlayers(patchneoforge.server.SetServerMaxPlayersRequest) returns (google.protobuf.Empty);
+  rpc SetServerWhitelist(patchneoforge.server.SetServerWhitelistRequest) returns (google.protobuf.Empty);
+  rpc SetServerWhitelistEnforced(patchneoforge.server.SetServerWhitelistEnforcedRequest) returns (google.protobuf.Empty);
+  rpc SetServerIdleTimeout(patchneoforge.server.SetServerIdleTimeoutRequest) returns (google.protobuf.Empty);
+  rpc SetServerDefaultGamemode(patchneoforge.server.SetServerDefaultGamemodeRequest) returns (google.protobuf.Empty);
+
+  rpc GetServerTickInfo(patchneoforge.common.EmptyRequest) returns (patchneoforge.server.ServerTickInfoResponse);
+  rpc SetServerTickRate(patchneoforge.server.SetServerTickRateRequest) returns (google.protobuf.Empty);
+
+  rpc ShutdownServer(patchneoforge.server.ShutdownServerRequest) returns (google.protobuf.Empty);
+  rpc BroadcastMessage(patchneoforge.server.BroadcastMessageRequest) returns (google.protobuf.Empty);
+
+  rpc GetWhitelist(patchneoforge.common.EmptyRequest) returns (patchneoforge.server.GetWhitelistResponse);
+  rpc SetWhitelistPlayer(patchneoforge.server.SetWhitelistPlayerRequest) returns (google.protobuf.Empty);
+
+  rpc GetOperators(patchneoforge.common.EmptyRequest) returns (patchneoforge.server.GetOperatorsResponse);
+  rpc SetOperator(patchneoforge.server.SetOperatorRequest) returns (google.protobuf.Empty);
+
+  rpc GetBanList(patchneoforge.server.GetBanListRequest) returns (patchneoforge.server.GetBanListResponse);
+  rpc SetBanEntry(patchneoforge.server.SetBanEntryRequest) returns (google.protobuf.Empty);
+
+  rpc CreateWorld(patchneoforge.server.CreateWorldRequest) returns (patchneoforge.server.CreateWorldResponse);
+  rpc UnloadWorld(patchneoforge.server.UnloadWorldRequest) returns (patchneoforge.server.UnloadWorldResponse);
+  rpc SaveAllWorlds(patchneoforge.common.EmptyRequest) returns (google.protobuf.Empty);
+}
+

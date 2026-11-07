@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package patchneoforge.abilities;
+
+import "patchneoforge/common/types.proto";
+
+option java_multiple_files = true;
+option java_package = "patchneoforge.abilities";
+
+message SetAbilitiesRequest {
+  patchneoforge.common.UUID uuid = 1;
+  Abilities abilities = 2;
+}
+
+message SetAbilitiesResponse {
+  bool success = 1;
+}
+
+message Abilities {
+  bool invulnerable = 1;
+  bool flying = 2;
+  bool allow_flying = 3;
+  bool creative = 4;
+  bool allow_modify_world = 5;
+  float fly_speed = 6;
+  float walk_speed = 7;
+}
