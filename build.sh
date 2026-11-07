@@ -34,6 +34,10 @@ for PLUGINS_DIR in "${SERVER_LOCATIONS[@]}"; do
         if [ -d "$DATA_JASSETS" ]; then
             cp --remove-destination -v "$DIR/java/patchneoforge/build/libs/patchneoforge.jar" "$DATA_JASSETS/patchneoforge.jar"
         fi
+        ROOT_JASSETS="$PLUGINS_DIR/../patchneoforge/jassets"
+        if [ -d "$ROOT_JASSETS" ]; then
+            cp --remove-destination -v "$DIR/java/patchneoforge/build/libs/patchneoforge.jar" "$ROOT_JASSETS/patchneoforge.jar"
+        fi
     fi
 done
 
