@@ -35,19 +35,45 @@ public class PatchNeoForgeBootstrap {
     public static boolean bootstrapMods(String modsDirPath) {
         LOGGER.info("[PatchNeoForge] Starting NeoForge mod bootstrap from: {}", modsDirPath);
 
-        File modsDir = new File(modsDirPath);
-        if (!modsDir.exists()) {
-            modsDir.mkdirs();
+        List<File> searchDirs = new ArrayList<>();
+        File primaryDir = new File(modsDirPath);
+        if (!primaryDir.exists()) {
+            primaryDir.mkdirs();
+        }
+        searchDirs.add(primaryDir);
+
+        if (primaryDir.getParentFile() != null) {
+            File rootMods = new File(primaryDir.getParentFile(), "mods");
+            if (rootMods.exists() && !searchDirs.contains(rootMods)) {
+                searchDirs.add(rootMods);
+            }
+            if (primaryDir.getParentFile().getParentFile() != null) {
+                File topMods = new File(primaryDir.getParentFile().getParentFile(), "mods");
+                if (topMods.exists() && !searchDirs.contains(topMods)) {
+                    searchDirs.add(topMods);
+                }
+            }
         }
 
-        File[] files = modsDir.listFiles((dir, name) -> name.endsWith(".jar"));
-        if (files == null || files.length == 0) {
-            LOGGER.info("[PatchNeoForge] No NeoForge mod JARs found in: {}", modsDirPath);
+        List<File> modJars = new ArrayList<>();
+        Set<String> seenNames = new HashSet<>();
+        for (File dir : searchDirs) {
+            File[] files = dir.listFiles((d, name) -> name.endsWith(".jar"));
+            if (files != null) {
+                for (File f : files) {
+                    if (seenNames.add(f.getName())) {
+                        modJars.add(f);
+                    }
+                }
+            }
+        }
+
+        if (modJars.isEmpty()) {
+            LOGGER.info("[PatchNeoForge] No NeoForge mod JARs found in mod search paths: {}", searchDirs);
             fireServerStartingEvents();
             return true;
         }
 
-        List<File> modJars = Arrays.asList(files);
         LOGGER.info("[PatchNeoForge] Found {} candidate mod JAR(s)", modJars.size());
 
         for (File jarFile : modJars) {

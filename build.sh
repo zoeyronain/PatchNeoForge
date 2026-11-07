@@ -20,6 +20,7 @@ done
 
 # Check potential Pumpkin server plugin locations
 SERVER_LOCATIONS=(
+    "$DIR/server/plugins"
     "$DIR/../Pumpkin/plugins"
     "$DIR/../pumpkin-server/plugins"
     "$DIR/../../pumpkin-server/plugins"
