@@ -22,6 +22,7 @@ done
 SERVER_LOCATIONS=(
     "$DIR/../Pumpkin/plugins"
     "$DIR/../pumpkin-server/plugins"
+    "$DIR/../../pumpkin-server/plugins"
 )
 
 for PLUGINS_DIR in "${SERVER_LOCATIONS[@]}"; do
