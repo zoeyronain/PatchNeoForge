@@ -30,7 +30,7 @@ pub async fn on_load_inner(plugin: &PatchNeoForgePlugin, server: Arc<Context>) -
 
     let base = get_base_directory(&server)?;
     std::fs::create_dir_all(&base)
-        .map_err(|e| format!("Failed to create PatchNeoForge base directory: {e}"))?;
+        .map_err(|e| format!("Failed to create PatchNeoForge base directory {}: {e}", base.display()))?;
 
     let mut config_path = base;
     config_path.push("patchneoforge.config.toml");
@@ -104,19 +104,44 @@ pub async fn on_load_inner(plugin: &PatchNeoForgePlugin, server: Arc<Context>) -
         }
     });
 
+    tracing::info!("PatchNeoForge loaded successfully");
     Ok(())
+}
+
+pub async fn on_unload_inner(
+    plugin: &PatchNeoForgePlugin,
+    _server: Arc<Context>,
+) -> Result<(), String> {
+    tracing::info!("Unloading PatchNeoForge plugin");
+    let (tx, rx) = oneshot::channel();
+    if let Err(e) = plugin.command_tx.send(JvmCommand::Shutdown { respond_to: tx }).await {
+        tracing::error!("Failed to send shutdown command to JVM worker: {e}");
+        return Ok(());
+    }
+    let _ = rx.await;
+    Ok(())
+}
+
+#[plugin_method]
+async fn on_load(&self, server: Arc<Context>) -> Result<(), String> {
+    on_load_inner(self, server).await
+}
+
+#[plugin_method]
+async fn on_unload(&self, server: Arc<Context>) -> Result<(), String> {
+    on_unload_inner(self, server).await
 }
 
 #[plugin_impl]
 pub struct PatchNeoForgePlugin {
-    pub runtime: tokio::runtime::Runtime,
     pub command_tx: mpsc::Sender<JvmCommand>,
+    pub runtime: Arc<tokio::runtime::Runtime>,
 }
 
 impl PatchNeoForgePlugin {
     #[must_use]
     pub fn new() -> Self {
-        let (command_tx, command_rx) = mpsc::channel(100);
+        let (command_tx, command_rx) = mpsc::channel(4096);
         let worker = JvmWorker::new(command_rx);
 
         std::thread::Builder::new()
@@ -126,29 +151,24 @@ impl PatchNeoForgePlugin {
             })
             .expect("Failed to spawn PatchNeoForge JVM Worker thread");
 
-        Self {
-            runtime: tokio::runtime::Builder::new_multi_thread()
+        let runtime = Arc::new(
+            tokio::runtime::Builder::new_multi_thread()
+                .worker_threads(4)
+                .thread_name("patchneoforge-worker")
                 .enable_all()
                 .build()
-                .expect("Failed to build tokio runtime"),
+                .expect("Failed to create PatchNeoForge Tokio runtime"),
+        );
+
+        Self {
             command_tx,
+            runtime,
         }
     }
+}
 
-    #[plugin_method]
-    async fn on_load(&self, server: Arc<Context>) -> Result<(), String> {
-        on_load_inner(self, server).await
-    }
-
-    #[plugin_method]
-    async fn on_unload(&self, _server: Arc<Context>) -> Result<(), String> {
-        tracing::info!("Unloading PatchNeoForge plugin");
-        let (tx, rx) = oneshot::channel();
-        if let Err(e) = self.command_tx.send(JvmCommand::Shutdown { respond_to: tx }).await {
-            tracing::error!("Failed to send shutdown command to JVM worker: {e}");
-            return Ok(());
-        }
-        let _ = rx.await;
-        Ok(())
+impl Default for PatchNeoForgePlugin {
+    fn default() -> Self {
+        Self::new()
     }
 }
