@@ -149,6 +149,76 @@ pub fn trigger_command_direct(
     Some(res)
 }
 
+pub fn get_neoforge_initial_payloads() -> Option<(Vec<u8>, Vec<u8>, Vec<u8>)> {
+    let jvm = GLOBAL_JVM.get()?;
+    let _guard = PRIMARY_LOCK.lock();
+    jvm.attach_current_thread(|env| -> anyhow::Result<(Vec<u8>, Vec<u8>, Vec<u8>)> {
+        let unregister_obj = env.call_static_method(
+            jni::jni_str!("org/patchneoforge/network/NeoForgeNetworkBridge"),
+            jni::jni_str!("createInitialUnregisterPayloadBytes"),
+            jni::jni_sig!("()[B"),
+            &[],
+        )?.l()?;
+        let unreg_ba = jni::objects::JByteArray::cast_local(env, unregister_obj)?;
+        let unreg_vec = env.convert_byte_array(&unreg_ba)?;
+
+        let register_obj = env.call_static_method(
+            jni::jni_str!("org/patchneoforge/network/NeoForgeNetworkBridge"),
+            jni::jni_str!("createInitialRegisterPayloadBytes"),
+            jni::jni_sig!("()[B"),
+            &[],
+        )?.l()?;
+        let reg_ba = jni::objects::JByteArray::cast_local(env, register_obj)?;
+        let reg_vec = env.convert_byte_array(&reg_ba)?;
+
+        let query_obj = env.call_static_method(
+            jni::jni_str!("org/patchneoforge/network/NeoForgeNetworkBridge"),
+            jni::jni_str!("createModdedQueryPayloadBytes"),
+            jni::jni_sig!("()[B"),
+            &[],
+        )?.l()?;
+        let query_ba = jni::objects::JByteArray::cast_local(env, query_obj)?;
+        let query_vec = env.convert_byte_array(&query_ba)?;
+
+        Ok((unreg_vec, reg_vec, query_vec))
+    }).ok()
+}
+
+pub fn negotiate_neoforge_network(
+    most_sig: i64,
+    least_sig: i64,
+    payload_data: &[u8],
+) -> Option<(Vec<u8>, Vec<u8>)> {
+    let jvm = GLOBAL_JVM.get()?;
+    let _guard = PRIMARY_LOCK.lock();
+    jvm.attach_current_thread(|env| -> anyhow::Result<(Vec<u8>, Vec<u8>)> {
+        let j_payload = env.byte_array_from_slice(payload_data)?;
+        let result_obj = env.call_static_method(
+            jni::jni_str!("org/patchneoforge/network/NeoForgeNetworkBridge"),
+            jni::jni_str!("handleClientModdedQueryRaw"),
+            jni::jni_sig!("(JJ[B)[[B"),
+            &[
+                jni::objects::JValue::Long(most_sig),
+                jni::objects::JValue::Long(least_sig),
+                (&j_payload).into(),
+            ],
+        )?.l()?;
+
+        if result_obj.is_null() {
+            anyhow::bail!("Negotiation returned null");
+        }
+
+        let obj_array = jni::objects::JObjectArray::<jni::objects::JByteArray>::cast_local(env, result_obj)?;
+        let elem0 = obj_array.get_element(env, 0)?;
+        let elem1 = obj_array.get_element(env, 1)?;
+
+        let v0 = env.convert_byte_array(&elem0)?;
+        let v1 = env.convert_byte_array(&elem1)?;
+
+        Ok((v0, v1))
+    }).ok()
+}
+
 #[must_use]
 pub fn get_tab_complete_direct(
     _command_sender: SimpleCommandSender,

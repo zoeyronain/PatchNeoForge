@@ -43,6 +43,9 @@ pub async fn on_load_inner(plugin: &PatchNeoForgePlugin, server: Arc<Context>) -
     // Manage embedded resources (patchneoforge.jar)
     setup_resources(&dirs.jassets).map_err(|e| format!("Failed to setup resources: {e}"))?;
 
+    // Register NeoForge network handshake event handlers
+    crate::neoforge::handshake::register_handshake_handlers(&server);
+
     let runtime_handle = plugin.runtime.handle().clone();
     let command_tx = plugin.command_tx.clone();
     let server_clone = server.clone();

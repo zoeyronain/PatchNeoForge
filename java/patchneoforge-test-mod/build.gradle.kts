@@ -19,11 +19,10 @@ repositories {
 dependencies {
     implementation(project(":patchneoforge"))
     compileOnly(fileTree("${rootProject.projectDir}/../server/patchneoforge/cache/neoforge/libraries") {
-        include("**/loader-*.jar")
-        include("**/neoforgespi-*.jar")
+        include("**/*.jar")
     })
-    implementation("com.mojang:brigadier:1.2.9")
-    implementation("org.slf4j:slf4j-api:2.0.12")
+    compileOnly("com.mojang:brigadier:1.2.9")
+    compileOnly("org.slf4j:slf4j-api:2.0.12")
 }
 
 tasks.named<Jar>("jar") {

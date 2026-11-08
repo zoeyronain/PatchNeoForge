@@ -1,6 +1,6 @@
 package org.patchneoforge.testmod;
 
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import net.minecraft.commands.Commands;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
@@ -53,7 +53,7 @@ public class TestNeoForgeMod {
     public void onRegisterCommands(RegisterCommandsEvent event) {
         LOGGER.info("[TestNeoForgeMod] Registering /testmod command with Brigadier");
         event.getDispatcher().register(
-                LiteralArgumentBuilder.literal("testmod")
+                Commands.literal("testmod")
                         .executes(context -> {
                             LOGGER.info("[TestNeoForgeMod] /testmod executed successfully!");
                             return 1;
@@ -63,12 +63,12 @@ public class TestNeoForgeMod {
 
     @SubscribeEvent
     public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        LOGGER.info("[TestNeoForgeMod] Player logged in: {} ({})", event.getPlayerName(), event.getPlayerUuid());
+        LOGGER.info("[TestNeoForgeMod] Player logged in: {}", event.getEntity().getName().getString());
     }
 
     @SubscribeEvent
     public void onBlockBreak(BlockEvent.BreakEvent event) {
-        LOGGER.info("[TestNeoForgeMod] Block broken at {},{},{} by {}",
-                event.getX(), event.getY(), event.getZ(), event.getPlayerUuid());
+        LOGGER.info("[TestNeoForgeMod] Block broken at {} by {}",
+                event.getPos(), event.getPlayer().getName().getString());
     }
 }

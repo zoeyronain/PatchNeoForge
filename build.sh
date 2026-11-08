@@ -5,7 +5,10 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "==> Building Java components..."
 cd "$DIR/java"
-./gradlew jar --no-daemon
+./gradlew jar
+
+echo "==> Updating embedded Java resources..."
+cp -v "$DIR/java/patchneoforge/build/libs/patchneoforge.jar" "$DIR/rust/resources/jassets/patchneoforge.jar"
 
 echo "==> Building Rust plugin..."
 cd "$DIR/rust"
@@ -20,6 +23,7 @@ done
 
 # Check potential Pumpkin server plugin locations
 SERVER_LOCATIONS=(
+    "$DIR/ServerPack/plugins"
     "$DIR/server/plugins"
     "$DIR/../Pumpkin/plugins"
     "$DIR/../pumpkin-server/plugins"

@@ -34,6 +34,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
 rand = { version = "0.10.3", default-features = false, features = ["std", "std_rng", "thread_rng"] }
+dashmap = "6.2.1"
 prost = "0.14"
 bytes = "1.12"
 time = { version = "0.3", default-features = false, features = ["std"] }
@@ -55,3 +56,13 @@ debug = false
 [profile.release]
 lto = false
 codegen-units = 16
+
+[patch."https://github.com/Pumpkin-MC/Pumpkin.git"]
+pumpkin-core = { path = "/home/zastra/Downloads/pumpkin/Pumpkin/crates/pumpkin-core" }
+pumpkin-data = { path = "/home/zastra/Downloads/pumpkin/Pumpkin/crates/pumpkin-data" }
+pumpkin-protocol = { path = "/home/zastra/Downloads/pumpkin/Pumpkin/crates/pumpkin-protocol" }
+pumpkin-util = { path = "/home/zastra/Downloads/pumpkin/Pumpkin/crates/pumpkin-util" }
+pumpkin-config = { path = "/home/zastra/Downloads/pumpkin/Pumpkin/crates/pumpkin-config" }
+pumpkin-nbt = { path = "/home/zastra/Downloads/pumpkin/Pumpkin/crates/pumpkin-nbt" }
+pumpkin-api-macros = { path = "/home/zastra/Downloads/pumpkin/Pumpkin/crates/pumpkin-api-macros" }
+pumpkin-macros = { path = "/home/zastra/Downloads/pumpkin/Pumpkin/crates/pumpkin-macros" }

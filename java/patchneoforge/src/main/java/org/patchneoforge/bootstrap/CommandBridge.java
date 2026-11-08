@@ -10,17 +10,18 @@ import java.util.*;
 public final class CommandBridge {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandBridge.class);
-    private static final CommandDispatcher<Object> DISPATCHER = new CommandDispatcher<>();
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static final CommandDispatcher<net.minecraft.commands.CommandSourceStack> DISPATCHER = (CommandDispatcher) new CommandDispatcher<>();
     private static final Set<String> REGISTERED_COMMANDS = Collections.synchronizedSet(new HashSet<>());
 
     private CommandBridge() {}
 
-    public static CommandDispatcher<Object> getDispatcher() {
+    public static CommandDispatcher<net.minecraft.commands.CommandSourceStack> getDispatcher() {
         return DISPATCHER;
     }
 
     public static void syncWithPumpkin() {
-        for (CommandNode<Object> node : DISPATCHER.getRoot().getChildren()) {
+        for (CommandNode<?> node : DISPATCHER.getRoot().getChildren()) {
             String name = node.getName();
             if (REGISTERED_COMMANDS.add(name)) {
                 LOGGER.info("[PatchNeoForge] Syncing NeoForge command '{}' with Pumpkin", name);
@@ -38,12 +39,13 @@ public final class CommandBridge {
         }
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public static int executeCommand(String commandLine, Object source) {
         try {
             if (commandLine.startsWith("/")) {
                 commandLine = commandLine.substring(1);
             }
-            return DISPATCHER.execute(commandLine, source);
+            return ((CommandDispatcher) DISPATCHER).execute(commandLine, source);
         } catch (Throwable t) {
             LOGGER.error("[PatchNeoForge] Error executing command: '{}'", commandLine, t);
             return 0;

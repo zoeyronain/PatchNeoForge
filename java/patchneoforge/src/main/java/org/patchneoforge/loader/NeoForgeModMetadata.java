@@ -15,6 +15,15 @@ public class NeoForgeModMetadata {
     private String description = "";
     private String authors = "";
 
+    public NeoForgeModMetadata() {}
+
+    public NeoForgeModMetadata(String modId, String displayName, String version, String description) {
+        this.modId = modId;
+        this.displayName = displayName;
+        this.version = version;
+        this.description = description;
+    }
+
     public static List<NeoForgeModMetadata> parseFromToml(InputStream in) {
         List<NeoForgeModMetadata> mods = new ArrayList<>();
         if (in == null) return mods;

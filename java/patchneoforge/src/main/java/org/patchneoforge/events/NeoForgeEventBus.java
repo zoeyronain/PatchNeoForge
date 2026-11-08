@@ -2,6 +2,7 @@ package org.patchneoforge.events;
 
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.ICancellableEvent;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import org.slf4j.Logger;
@@ -30,7 +31,7 @@ public class NeoForgeEventBus implements IEventBus {
     ) implements Comparable<RegisteredListener> {
         @Override
         public int compareTo(RegisteredListener o) {
-            return this.priority.compareTo(o.priority); // Enum order: HIGHEST=0, LOWEST=4
+            return this.priority.compareTo(o.priority);
         }
     }
 
@@ -40,6 +41,11 @@ public class NeoForgeEventBus implements IEventBus {
 
     public String getName() {
         return busName;
+    }
+
+    @Override
+    public void start() {
+        LOGGER.debug("[{}] Bus started", busName);
     }
 
     @Override
@@ -59,9 +65,23 @@ public class NeoForgeEventBus implements IEventBus {
     }
 
     @Override
+    public <T extends Event> void addListener(EventPriority priority, Class<T> eventType, Consumer<T> consumer) {
+        addListener(priority, false, eventType, consumer);
+    }
+
+    @Override
+    public <T extends Event> void addListener(boolean receiveCanceled, Consumer<T> consumer) {
+        addListener(EventPriority.NORMAL, receiveCanceled, consumer);
+    }
+
+    @Override
+    public <T extends Event> void addListener(boolean receiveCanceled, Class<T> eventType, Consumer<T> consumer) {
+        addListener(EventPriority.NORMAL, receiveCanceled, eventType, consumer);
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public <T extends Event> void addListener(EventPriority priority, boolean receiveCanceled, Consumer<T> consumer) {
-        // Resolve type from lambda or consumer if possible; default to Event
         Class<T> type = (Class<T>) resolveConsumerEventType(consumer);
         addListener(priority, receiveCanceled, type, consumer);
     }
@@ -145,12 +165,13 @@ public class NeoForgeEventBus implements IEventBus {
         Objects.requireNonNull(event, "Event must not be null");
         Class<?> current = event.getClass();
 
-        // Dispatch to all matching hierarchy levels (e.g. BreakEvent -> BlockEvent -> Event)
+        boolean isCanceled = (event instanceof ICancellableEvent ce) && ce.isCanceled();
+
         while (current != null && Event.class.isAssignableFrom(current)) {
             List<RegisteredListener> listeners = listenersByEventType.get(current);
             if (listeners != null && !listeners.isEmpty()) {
                 for (RegisteredListener listener : listeners) {
-                    if (event.isCanceled() && !listener.receiveCanceled()) {
+                    if (isCanceled && !listener.receiveCanceled()) {
                         continue;
                     }
                     if (!listener.eventType().isInstance(event)) {
@@ -161,12 +182,18 @@ public class NeoForgeEventBus implements IEventBus {
                     } catch (Throwable t) {
                         LOGGER.error("[{}] Error firing event {} to listener", busName, event.getClass().getSimpleName(), t);
                     }
+                    isCanceled = (event instanceof ICancellableEvent ce) && ce.isCanceled();
                 }
             }
             current = current.getSuperclass();
         }
 
         return event;
+    }
+
+    @Override
+    public <T extends Event> T post(EventPriority priority, T event) {
+        return post(event);
     }
 
     private void sortListeners(Class<?> eventType) {
